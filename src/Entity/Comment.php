@@ -2,30 +2,40 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Get;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CommentRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ApiResource(operations: [
+    new Get(normalizationContext: ['groups' => 'comment:item']),
+    new GetCollection(normalizationContext: ['groups' => 'comment:list'])
+])]
 class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('post:read')]
+    // #[Groups('post:read')]
+    #[Groups(['comment:list', 'comment:item'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
-    #[Groups('post:read')]
+    // #[Groups('post:read')]
+    #[Groups(['comment:list', 'comment:item'])]
     private ?User $user_comment = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments', cascade: ['remove'])]
-    #[ORM\JoinColumn(onDelete: "CASCADE")]
+    #[Groups(['comment:list', 'comment:item'])]
     private ?Post $post = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups('post:read')]
+    // #[Groups('post:read')]
+    #[Groups(['comment:list', 'comment:item'])]
     private ?string $content = null;
 
     public function getId(): ?int
